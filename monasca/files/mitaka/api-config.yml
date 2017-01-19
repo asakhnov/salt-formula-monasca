@@ -1,0 +1,161 @@
+{%- from "monasca/map.jinja" import api with context %}
+# The region for which all metrics passing through this server will be persisted
+region: "{{ api.identity.region }}"
+
+maxQueryLimit: 10000
+
+# Whether this server is running on a secure port
+accessedViaHttps: false
+
+# Topic for publishing metrics to
+metricsTopic: metrics
+
+# Topic for publishing domain events to
+eventsTopic: events
+
+validNotificationPeriods:
+  - 60
+
+kafka:
+  brokerUris:
+{%- for member in api.kafka.members %}
+    - "{{ member.host }}:{{ member.get('port', 9092) }}"
+{%- endfor %}
+  zookeeperUris:
+{%- for member in api.zookeeper.members %}
+    - "{{ member.host }}:{{ member.get('port', 2181) }}"
+{%- endfor %}
+  healthCheckTopic: healthcheck
+
+mysql:
+  driverClass: com.mysql.jdbc.Driver
+  url: jdbc:mysql://{{ api.database.host }}:3306/{{ api.database.name }}?connectTimeout=5000&autoReconnect=true&useSSL=true&useLegacyDatetimeCode=false
+  user: {{ api.database.user }}
+  password: {{ api.database.password }}
+  maxWaitForConnection: 1s
+  validationQuery: "/* MyService Health Check */ SELECT 1"
+  minSize: 8
+  maxSize: 32
+  checkConnectionWhileIdle: false
+  checkConnectionOnBorrow: true
+{#
+hibernate:
+  supportEnabled: {{ api.hibernate.enabled }}
+  providerClass: com.zaxxer.hikari.hibernate.HikariConnectionProvider
+  dataSourceClassName: {{ api.hibernate.driver_class }}
+  serverName: {{ api.hibernate.database.host }}
+  portNumber: {{ api.hibernate.database.port }}
+  databaseName: {{ api.hibernate.database.name }}
+  user: {{ api.hibernate.database.user }}
+  password: {{ api.hibernate.database.password }}
+  initialConnections: 25
+  maxConnections: 100
+  autoConfig: validate
+#}
+databaseConfiguration:
+  databaseType: "influxdb"
+
+# Uncomment if databaseType is influxDB
+influxDB:
+  # Retention policy may be left blank to indicate default policy.
+  retentionPolicy:
+  maxHttpConnections: 100
+  gzip: true
+  name: "{{ api.influxdb.name }}"
+  url: "http://{{ api.influxdb.host }}:8086"
+  user: "{{ api.influxdb.user }}"
+  password: "{{ api.influxdb.password }}"
+
+# Uncomment if databaseType is vertica
+# As of 7/10 there is a bug in the monasca-api that requires this section even if databaseType is set to influxdb
+vertica:
+  driverClass: com.vertica.jdbc.Driver
+  url: "jdbc:vertica://localhost:5433/mon"
+  user: mon_api
+  password: password
+  maxWaitForConnection: 1s
+  validationQuery: "/* MyService Health Check */ SELECT 1"
+  minSize: 4
+  maxSize: 32
+  checkConnectionWhileIdle: true
+
+middleware:
+  enabled: true
+  serverVIP: "{{ api.identity.host }}"
+  serverPort: 5000
+  useHttps: True
+  truststore: "/etc/monasca.keystore"
+  truststorePassword: "{{ api.identity.trustpassword }}"
+  connTimeout: 5000 # variableize
+  connSSLClientAuth: False
+  keystore: "None"
+  keystorePassword: "None"
+  connPoolMaxActive: 3
+  connPoolMaxIdle: 3
+  connPoolEvictPeriod: 600000
+  connPoolMinIdleTime: 600000
+  connRetryTimes: 2
+  connRetryInterval: 50
+  defaultAuthorizedRoles: [user, domainuser, domainadmin, monasca-user, admin]
+  readOnlyAuthorizedRoles: [monasca-read-only-user]
+  agentAuthorizedRoles: [monasca-agent]
+  adminAuthMethod: password
+  adminUser: "{{ api.identity.user }}"
+  adminPassword: "{{ api.identity.password }}"
+  adminProjectId:
+  adminProjectName:
+  timeToCacheToken: 600
+  maxTokenCacheSize: 1048576
+  adminToken:
+
+server:
+  applicationConnectors:
+    - type: http
+      bindHost: "{{ api.bind.address }}"
+      port: 8070
+      maxRequestHeaderSize: 16KiB  # Allow large headers used by keystone tokens
+  adminConnectors:
+    - type: http
+      port: 8081
+      bindHost: "{{ api.bind.address }}"
+  requestLog:
+   timeZone: UTC
+   appenders:
+    - type: file
+      currentLogFilename: "/var/log/monasca/api/request.log"
+      threshold: ALL
+      archive: true
+      archivedLogFilenamePattern: "/var/log/monasca/api/request-%d.log.gz"
+      archivedFileCount: 5
+
+# Logging settings.
+logging:
+
+  # The default level of all loggers. Can be OFF, ERROR, WARN, INFO, DEBUG, TRACE, or ALL.
+{%- if api.debug %}
+  level: DEBUG
+{%- elif api.verbose %}
+  level: INFO
+{%- else %}
+  level: WARN
+{%- endif %}
+
+  # Logger-specific levels.
+  loggers:
+   com.example.app: DEBUG
+
+  appenders:
+    - type: console
+      threshold: ALL
+      timeZone: UTC
+      target: stdout
+      logFormat: # TODO
+
+    - type: file
+      currentLogFilename: "/var/log/monasca/api/monasca-api.log"
+      threshold: ALL
+      archive: true
+      archivedLogFilenamePattern: "/var/log/monasca/api/monasca-api-%d.log.gz"
+      archivedFileCount: 5
+      timeZone: UTC
+      logFormat: # TODO

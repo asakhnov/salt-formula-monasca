@@ -1,0 +1,8 @@
+name: monasca
+os: Debian
+os_family: Debian
+version: 201701
+release: 1
+summary: Formula for installing and configuring monasca
+description: Formula for installing and configuring monasca
+top_level_dir: monasca
