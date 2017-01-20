@@ -1,13 +1,26 @@
+{% set common = salt['grains.filter_by']({
+    'Debian': {
+      'java': 'default-jre',
+    },
+    'RedHat': {},
+}, merge=pillar.monasca.get('common', {})) %}
+
 {% set api = salt['grains.filter_by']({
     'Debian': {
       'version': 'mitaka',
-      'java': 'default-jre',
       'source': 'http://tarballs.openstack.org/ci/monasca-api/monasca-api-1.1.0-SNAPSHOT-shaded.jar',
       'source_hash': 'md5=eca51f149bf7bb275b8b7398a7b04842',
       'service_name': 'monasca-api',
     },
-    'RedHat': {
-      'version': 'mitaka',
-      'service_name': 'monasca-api',
-    },
+    'RedHat': {},
 }, merge=pillar.monasca.get('api', {})) %}
+
+{% set persister = salt['grains.filter_by']({
+    'Debian': {
+      'version': 'mitaka',
+      'source': 'http://tarballs.openstack.org/ci/monasca-persister/monasca-persister-1.1.0-SNAPSHOT-shaded.jar',
+      'source_hash': 'md5=5e51d299d6f8252e3df42bb5d1e08dc9',
+      'service_name': 'monasca-persister',
+    },
+    'RedHat': {},
+}, merge=pillar.monasca.get('persister', {})) %}

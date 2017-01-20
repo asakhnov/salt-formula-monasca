@@ -1,12 +1,11 @@
 applications:
-- monasca
+- monasca.api
+classes:
+- service.monasca.common
 parameters:
-  _param:
-    monasca_api_enabled: true
-    monasca_version: mitaka
   monasca:
     api:
-      enabled: ${_param:monasca_api_enabled}
+      enabled: true
       version: ${_param:monasca_version}
       verbose: true
       debug: false
@@ -14,31 +13,24 @@ parameters:
         address: 0.0.0.0
       identity:
         region: RegionOne
-        host: 127.0.0.1
+        host: ${_param:single_address}
         user: monasca
-        password: 'monasca'
-        trustpassword: 'trustpassword'
+        password: ${_param:keystone_monasca_password}
+      keystore:
+        enabled: true
+        password: ${_param:monasca_keystore_password}
+        cert_path: /etc/ssl/certs/monasca-api.bootstrap.local.crt
+        cert_source: ${_param:monasca_keystore_cert_source}
       database:
-        host: 127.0.0.1
-        name: 'monasca'
-        password: 'monasca'
-        user: 'monasca'
-      kafka:
-        members:
-        - host: 127.0.0.1
-      zookeeper:
-        members:
-        - host: 127.0.0.1
+        host: localhost
+        name: monasca
+        password: ${_param:mysql_monasca_password}
+        user: monasca
       hibernate:
         enabled: true
         driver_class:
         database:
-          host: 127.0.0.1
+          host: localhost
           name: monasca
           user: monasca
-          password: 'monasca'
-      influxdb:
-        name: monasca
-        user: monasca
-        password: 'monasca'
-        host: 127.0.0.1
+          password: ${_param:monasca_hibernate_password}

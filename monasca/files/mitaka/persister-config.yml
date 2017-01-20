@@ -1,0 +1,100 @@
+{%- from "monasca/map.jinja" import common,persister with context -%}
+name: monasca-persister
+
+alarmHistoryConfiguration:
+  batchSize: 100
+  numThreads: 2
+  maxBatchTime: 15
+# See http://kafka.apache.org/documentation.html#api for semantics and defaults.
+  topic: alarm-state-transitions
+  groupId: 1_alarm-state-transitions
+  consumerId: "{{ grains['fqdn'] }}"
+  clientId : 1
+
+metricConfiguration:
+  batchSize: 10000
+  numThreads: 4
+  maxBatchTime: 15
+# See http://kafka.apache.org/documentation.html#api for semantics and defaults.
+  topic: metrics
+  groupId: 1_metrics
+  consumerId: "{{ grains['fqdn'] }}"
+  clientId : 1
+
+#Kafka settings.
+kafkaConfig:
+# See http://kafka.apache.org/documentation.html#api for semantics and defaults.
+  zookeeperConnect: "{%- for member in common.zookeeper.members %}{{ member.host }}:{{ member.get('port', 2181) }}{%- if not loop.last -%},{%- endif -%}{%- endfor %}"
+  socketTimeoutMs: 30000
+  socketReceiveBufferBytes : 65536
+  fetchMessageMaxBytes: 1048576
+  queuedMaxMessageChunks: 10
+  rebalanceMaxRetries: 4
+  fetchMinBytes:  1
+  fetchWaitMaxMs:  100
+  rebalanceBackoffMs: 2000
+  refreshLeaderBackoffMs: 200
+  autoOffsetReset: largest
+  consumerTimeoutMs:  1000
+  zookeeperSessionTimeoutMs : 60000
+  zookeeperConnectionTimeoutMs : 60000
+  zookeeperSyncTimeMs: 2000
+
+verticaMetricRepoConfig:
+  maxCacheSize: 2000000
+
+databaseConfiguration:
+# vertica | influxdb
+  databaseType: influxdb
+
+# Uncomment if databaseType is influxdb
+influxDbConfiguration:
+  # Retention policy may be left blank to indicate default policy.
+  retentionPolicy:
+  maxHttpConnections: 100
+  gzip: true
+  name: "{{ common.influxdb.name }}"
+  url: "http://{{ common.influxdb.host }}:8086"
+  user: "{{ common.influxdb.user }}"
+  password: "{{ common.influxdb.password }}"
+
+metrics:
+  frequency: 1 second
+
+# Logging settings.
+logging:
+
+  # The default level of all loggers. Can be OFF, ERROR, WARN, INFO,
+  # DEBUG, TRACE, or ALL.
+  level: WARN
+
+  # Logger-specific levels.
+  loggers:
+
+    # Sets the level for 'com.example.app' to DEBUG.
+      com.example.app: DEBUG
+    # com.hpcloud: debug
+    # com.hpcloud.mon.persister.repository: DEBUG
+
+  appenders:
+
+    - type: file
+      threshold: INFO
+      archive: true
+      currentLogFilename: "/var/log/monasca/persister/monasca-persister.log"
+      archivedLogFilenamePattern: "/var/log/monasca/persister/monasca-persister.log-%d.log.gz"
+      archivedFileCount: 5
+      # The timezone used to format dates. HINT: USE THE DEFAULT, UTC.
+      timeZone: UTC
+
+server:
+  applicationConnectors:
+    - type: http
+      port: 8090
+  adminConnectors:
+    - type: http
+      port: 8091
+{% if grains['num_cpus'] > 32 %}
+# Dropwizard 0.7.0 includes a version of Jetty with admin thread issues on large machines, this works around it
+  adminMaxThreads: {{ grains['num_cpus'] * 2 }}
+{% endif -%}

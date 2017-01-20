@@ -1,4 +1,4 @@
-{%- from "monasca/map.jinja" import api with context %}
+{%- from "monasca/map.jinja" import api,common with context -%}
 # The region for which all metrics passing through this server will be persisted
 region: "{{ api.identity.region }}"
 
@@ -18,11 +18,11 @@ validNotificationPeriods:
 
 kafka:
   brokerUris:
-{%- for member in api.kafka.members %}
+{%- for member in common.kafka.members %}
     - "{{ member.host }}:{{ member.get('port', 9092) }}"
 {%- endfor %}
   zookeeperUris:
-{%- for member in api.zookeeper.members %}
+{%- for member in common.zookeeper.members %}
     - "{{ member.host }}:{{ member.get('port', 2181) }}"
 {%- endfor %}
   healthCheckTopic: healthcheck
@@ -61,10 +61,10 @@ influxDB:
   retentionPolicy:
   maxHttpConnections: 100
   gzip: true
-  name: "{{ api.influxdb.name }}"
-  url: "http://{{ api.influxdb.host }}:8086"
-  user: "{{ api.influxdb.user }}"
-  password: "{{ api.influxdb.password }}"
+  name: "{{ common.influxdb.name }}"
+  url: "http://{{ common.influxdb.host }}:8086"
+  user: "{{ common.influxdb.user }}"
+  password: "{{ common.influxdb.password }}"
 
 # Uncomment if databaseType is vertica
 # As of 7/10 there is a bug in the monasca-api that requires this section even if databaseType is set to influxdb
@@ -85,7 +85,7 @@ middleware:
   serverPort: 5000
   useHttps: True
   truststore: "/etc/monasca.keystore"
-  truststorePassword: "{{ api.identity.trustpassword }}"
+  truststorePassword: "{{ api.keystore.password }}"
   connTimeout: 5000 # variableize
   connSSLClientAuth: False
   keystore: "None"
@@ -127,6 +127,10 @@ server:
       archive: true
       archivedLogFilenamePattern: "/var/log/monasca/api/request-%d.log.gz"
       archivedFileCount: 5
+{% if grains['num_cpus'] > 32 %}
+# Dropwizard 0.7.0 includes a version of Jetty with admin thread issues on large machines, this works around it
+  adminMaxThreads: {{ grains['num_cpus'] * 2 }}
+{%- endif %}
 
 # Logging settings.
 logging:
