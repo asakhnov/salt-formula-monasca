@@ -5,3 +5,6 @@ include:
 {%- if pillar.monasca.persister.enabled %}
 - monasca.persister
 {%- endif %}
+{%- if pillar.monasca.notification.enabled %}
+- monasca.notification
+{%- endif %}

@@ -21,11 +21,6 @@ parameters:
         password: ${_param:monasca_keystore_password}
         cert_path: /etc/ssl/certs/monasca-api.bootstrap.local.crt
         cert_source: ${_param:monasca_keystore_cert_source}
-      database:
-        host: localhost
-        name: monasca
-        password: ${_param:mysql_monasca_password}
-        user: monasca
       hibernate:
         enabled: true
         driver_class:

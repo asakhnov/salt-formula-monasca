@@ -29,9 +29,9 @@ kafka:
 
 mysql:
   driverClass: com.mysql.jdbc.Driver
-  url: jdbc:mysql://{{ api.database.host }}:3306/{{ api.database.name }}?connectTimeout=5000&autoReconnect=true&useSSL=true&useLegacyDatetimeCode=false
-  user: {{ api.database.user }}
-  password: {{ api.database.password }}
+  url: jdbc:mysql://{{ common.mysql.host }}:3306/{{ common.mysql.name }}?connectTimeout=5000&autoReconnect=true&useSSL=true&useLegacyDatetimeCode=false
+  user: {{ common.mysql.user }}
+  password: {{ common.mysql.password }}
   maxWaitForConnection: 1s
   validationQuery: "/* MyService Health Check */ SELECT 1"
   minSize: 8

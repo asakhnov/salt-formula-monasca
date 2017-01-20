@@ -1,6 +1,8 @@
 {% set common = salt['grains.filter_by']({
     'Debian': {
       'java': 'default-jre',
+      'pip': 'python-pip',
+      'python_dev': 'python-dev',
     },
     'RedHat': {},
 }, merge=pillar.monasca.get('common', {})) %}
@@ -24,3 +26,11 @@
     },
     'RedHat': {},
 }, merge=pillar.monasca.get('persister', {})) %}
+
+{% set notification = salt['grains.filter_by']({
+    'Debian': {
+      'version': 'mitaka',
+      'service_name': 'monasca-notification',
+    },
+    'RedHat': {},
+}, merge=pillar.monasca.get('notification', {})) %}

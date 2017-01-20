@@ -1,0 +1,84 @@
+{%- from "monasca/map.jinja" import common,notification with context -%}
+kafka:
+  url: "{%- for member in common.kafka.members %}{{ member.host }}:{{ member.get('port', 9092) }}{%- if not loop.last -%},{%- endif -%}{%- endfor %}"
+  group: "monasca-notification"
+  alarm_topic: "alarm-state-transitions"
+  notification_topic: "alarm-notifications"
+  notification_retry_topic: "retry-notifications"
+  max_offset_lag: 600  # In seconds, undefined for none
+  periodic:
+    60: 60-seconds-notifications
+
+database:
+  repo_driver: monasca_notification.common.repositories.mysql.mysql_repo:MysqlRepo
+
+mysql:
+  host: {{ common.mysql.host }}
+  user: {{ common.mysql.user }}
+  passwd: {{ common.mysql.password }}
+  db: {{ common.mysql.name }}
+
+notification_types:
+  plugins:
+    - monasca_notification.plugins.slack_notifier:SlackNotifier
+  email:
+    server: "{{ notification.smtp_host }}"
+    port: 25
+    user:
+    password:
+    timeout: 15
+    from_addr: "{{ notification.email_address }}"
+  slack:
+    timeout: 5
+
+processors:
+    alarm:
+      number: 2
+      ttl: 14400  # In seconds, undefined for none. Alarms older than this are not processed
+    notification:
+      number: 2
+
+retry:
+  interval: 30
+  max_attempts: 5
+
+queues:
+  alarms_size: 256
+  finished_size: 256
+  notifications_size: 256
+  sent_notifications_size: 50  # limiting this size reduces potential # of re-sent notifications after a failure
+
+zookeeper:
+  url: "{%- for member in common.zookeeper.members %}{{ member.host }}:{{ member.get('port', 2181) }}{%- if not loop.last -%},{%- endif -%}{%- endfor %}"
+  notification_path: "/notification/alarms"
+  notification_retry_path: "/notification/retry"
+  periodic_path:
+    60: /notification/60_seconds
+
+logging: # Used in logging.dictConfig
+  version: 1
+  disable_existing_loggers: False
+  formatters:
+      default:
+          format: "%(asctime)s %(levelname)s %(name)s %(message)s"
+  handlers:
+      console:
+          class: logging.StreamHandler
+          formatter: default
+      file:
+          class: logging.handlers.RotatingFileHandler
+          filename: "/var/log/monasca/notification/notification.log"
+          formatter: default
+          maxBytes: 10485760  # Rotate at file size ~10MB
+          backupCount: 5  # Keep 5 older logs around
+  loggers:
+      kazoo:
+          level: WARN
+      kafka:
+          level: WARN
+      statsd:
+          level: WARN
+  root:
+      handlers:
+          - file
+      level: WARN
