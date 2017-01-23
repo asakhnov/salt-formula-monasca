@@ -8,3 +8,6 @@ include:
 {%- if pillar.monasca.notification.enabled %}
 - monasca.notification
 {%- endif %}
+{%- if pillar.monasca.thresh.enabled %}
+- monasca.thresh
+{%- endif %}
