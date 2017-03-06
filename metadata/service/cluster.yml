@@ -1,0 +1,24 @@
+parameters:
+  monasca:
+    version: ${_param:openstack_version}
+    identity:
+      region: ${_param:openstack_region}
+      host: ${_param:openstack_control_address}
+      password: ${_param:keystone_monasca_password}
+      admin_token: ${_param:keystone_admin_token}
+    mysql:
+      host: ${_param:openstack_control_address}
+      password: ${_param:mysql_monasca_password}
+    kafka:
+      members:
+      - host: ${_param:cluster_node01_address}
+      - host: ${_param:cluster_node02_address}
+      - host: ${_param:cluster_node03_address}
+    zookeeper:
+      members:
+      - host: ${_param:cluster_node01_address}
+      - host: ${_param:cluster_node02_address}
+      - host: ${_param:cluster_node03_address}
+    influxdb:
+      host: ${_param:monasca_address}
+      password: ${_param:influxdb_monasca_password}

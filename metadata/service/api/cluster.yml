@@ -1,8 +1,8 @@
 applications:
-- monasca.persister
+- monasca.api
 classes:
-- service.monasca.single
+- service.monasca.cluster
 parameters:
   monasca:
-    persister:
+    api:
       enabled: true

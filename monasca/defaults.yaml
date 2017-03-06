@@ -1,0 +1,53 @@
+{% set monasca_version = "mitaka" %}
+{% set verbose = true %}
+{% set debug = false %}
+
+monasca:
+  version: {{ monasca_version }}
+  api:
+    pkg_name: monasca-api
+    svc_name: monasca-api
+    conf: /etc/monasca/api-config.yml
+    enabled: true
+    verbose: {{ verbose }}
+    debug: {{ debug }}
+  persister:
+    pkg_name: monasca-persister
+    svc_name: monasca-persister
+    conf: /etc/monasca/persister-config.yml
+    enabled: true
+    verbose: {{ verbose }}
+    debug: {{ debug }}
+  notification:
+    enabled: true
+  thresh:
+    enabled: true
+  identity:
+    region: RegionOne
+    host: localhost
+    user: monasca
+    password: password
+    admin_token: admin_token
+  mysql:
+    host: localhost
+    name: monasca
+    user: monasca
+    password: password
+  influxdb:
+    host: localhost
+    name: monasca
+    user: monasca
+    password: password
+  vertica:
+    host: localhost
+    name: mon
+    user: dbadmin
+    password: password
+  kafka:
+    members:
+      - host: localhost
+        port: 9092
+  zookeeper:
+    members:
+      - host: localhost
+        port: 2181
