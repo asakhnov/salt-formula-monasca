@@ -22,6 +22,14 @@ monasca:
     enabled: true
   thresh:
     enabled: true
+  agent:
+    pkg_name: monasca-agent
+    svc_name: monasca-agent
+    conf: /etc/monasca/agent/agent.yaml
+    enabled: true
+    user: monasca-agent
+    project: monasca
+    password: password
   identity:
     region: RegionOne
     host: localhost

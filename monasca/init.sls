@@ -11,3 +11,6 @@ include:
 {%- if pillar.monasca.thresh.enabled %}
 - monasca.thresh
 {%- endif %}
+{%- if pillar.monasca.agent.enabled %}
+- monasca.agent
+{%- endif %}

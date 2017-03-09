@@ -1,0 +1,9 @@
+applications:
+- monasca.agent
+classes:
+- service.monasca.cluster
+parameters:
+  monasca:
+    agent:
+      enabled: true
+      password: ${_param:keystone_monasca_agent_password}
