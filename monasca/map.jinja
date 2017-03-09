@@ -18,30 +18,3 @@
         merge=True
     )
 %}
-
-{% set common = salt['grains.filter_by']({
-    'Debian': {
-      'pip': 'python-pip',
-      'python_dev': 'python-dev',
-    },
-    'RedHat': {},
-}, merge=pillar.monasca.get('common', {})) %}
-
-{% set notification = salt['grains.filter_by']({
-    'Debian': {
-      'version': 'mitaka',
-      'package_name': 'monasca-notification',
-      'service_name': 'monasca-notification',
-    },
-    'RedHat': {},
-}, merge=pillar.monasca.get('notification', {})) %}
-
-{% set thresh = salt['grains.filter_by']({
-    'Debian': {
-      'version': 'mitaka',
-      'source': 'http://tarballs.openstack.org/ci/monasca-thresh/monasca-thresh-2.0.0-SNAPSHOT-shaded.jar',
-      'source_hash': 'md5=b87f93036dcb4e63264d58c832c2220f',
-      'service_name': 'monasca-thresh',
-    },
-    'RedHat': {},
-}, merge=pillar.monasca.get('thresh', {})) %}

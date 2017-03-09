@@ -19,8 +19,14 @@ monasca:
     verbose: {{ verbose }}
     debug: {{ debug }}
   notification:
+    pkg_name: monasca-notification
+    svc_name: monasca-notification
+    conf: /etc/monasca/notification-config.yml
     enabled: true
   thresh:
+    pkg_name: monasca-thresh
+    svc_name: monasca-thresh
+    conf: /etc/monasca/thresh-config.yml
     enabled: true
   agent:
     pkg_name: monasca-agent

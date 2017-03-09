@@ -1,4 +1,4 @@
-{%- from "monasca/map.jinja" import common,notification with context -%}
+{%- from "monasca/map.jinja" import monasca with context -%}
 metricSpoutThreads: 2
 metricSpoutTasks: 2
 
@@ -17,7 +17,7 @@ metricSpoutConfig:
     topic: "metrics"
     numThreads: 1
     groupId: "thresh-metric"
-    zookeeperConnect: "{%- for member in common.zookeeper.members %}{{ member.host }}:{{ member.get('port', 2181) }}{%- if not loop.last -%},{%- endif -%}{%- endfor %}"
+    zookeeperConnect: "{%- for member in monasca.zookeeper.members %}{{ member.host }}:{{ member.get('port', 2181) }}{%- if not loop.last -%},{%- endif -%}{%- endfor %}"
     consumerId: 1
     socketTimeoutMs: 30000
     socketReceiveBufferBytes : 65536
@@ -44,7 +44,7 @@ eventSpoutConfig:
     topic: "events"
     numThreads: 1
     groupId: "thresh-event"
-    zookeeperConnect: "{%- for member in common.zookeeper.members %}{{ member.host }}:{{ member.get('port', 2181) }}{%- if not loop.last -%},{%- endif -%}{%- endfor %}"
+    zookeeperConnect: "{%- for member in monasca.zookeeper.members %}{{ member.host }}:{{ member.get('port', 2181) }}{%- if not loop.last -%},{%- endif -%}{%- endfor %}"
     consumerId: 1
     socketTimeoutMs: 30000
     socketReceiveBufferBytes : 65536
@@ -68,7 +68,7 @@ eventSpoutConfig:
 kafkaProducerConfig:
   # See http://kafka.apache.org/documentation.html#api for semantics and defaults.
   topic: "alarm-state-transitions"
-  metadataBrokerList: "{%- for member in common.kafka.members %}{{ member.host }}:{{ member.get('port', 9092) }}{%- if not loop.last -%},{%- endif -%}{%- endfor %}"
+  metadataBrokerList: "{%- for member in monasca.kafka.members %}{{ member.host }}:{{ member.get('port', 9092) }}{%- if not loop.last -%},{%- endif -%}{%- endfor %}"
   serializerClass: kafka.serializer.StringEncoder
   partitionerClass:
   requestRequiredAcks: 1
@@ -93,9 +93,9 @@ sporadicMetricNamespaces:
 
 database:
   driverClass: com.mysql.jdbc.Driver
-  url: jdbc:mysql://{{ common.mysql.host }}/{{ common.mysql.name }}?useSSL=true
-  user: {{ common.mysql.user }}
-  password: "{{ common.mysql.password }}"
+  url: jdbc:mysql://{{ monasca.mysql.host }}/{{ monasca.mysql.name }}
+  user: {{ monasca.mysql.user }}
+  password: {{ monasca.mysql.password }}
   properties:
       ssl: false
   # the maximum amount of time to wait on an empty pool before throwing an exception

@@ -1,7 +1,7 @@
 applications:
 - monasca.thresh
 classes:
-- service.monasca.single
+- service.monasca.cluster
 parameters:
   monasca:
     thresh:
