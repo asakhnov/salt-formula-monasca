@@ -1,0 +1,7 @@
+# (C) Copyright 2015 Hewlett Packard Enterprise Development Company LP
+
+init_config:
+
+instances:
+    # Memory check only supports one configured instance
+    - name: memory_stats

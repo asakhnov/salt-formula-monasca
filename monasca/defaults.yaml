@@ -36,6 +36,12 @@ monasca:
     user: monasca-agent
     project: monasca
     password: password
+    plugins:
+      cpu:
+      disk:
+      load:
+      memory:
+      network:
   identity:
     region: RegionOne
     host: localhost

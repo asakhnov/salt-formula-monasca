@@ -22,3 +22,17 @@ monasca_agent_service:
   - enable: True
   - watch:
     - file: monasca_agent_config
+
+# Plugins
+{%- for plugin, args in monasca.agent.get('plugins', {}).items() %}
+monasca_agent_plugin_{{ plugin }}:
+  file.managed:
+  - name: /etc/monasca/agent/conf.d/{{ plugin }}.yaml
+  - source: salt://monasca/files/{{ monasca.version }}/agent-plugins/{{ plugin }}.yaml
+  - user: mon-agent
+  - group: monasca
+  - mode: 640
+  - template: jinja
+  - watch_in:
+    - service: monasca_agent_service
+{%- endfor %}

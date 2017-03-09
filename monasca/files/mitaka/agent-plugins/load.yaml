@@ -1,0 +1,7 @@
+# (C) Copyright 2015 Hewlett Packard Enterprise Development Company LP
+
+init_config:
+
+instances:
+    # Load check only supports one configured instance
+    - name: load_stats
