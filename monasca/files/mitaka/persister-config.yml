@@ -111,7 +111,9 @@ logging:
 server:
   applicationConnectors:
     - type: http
-      port: 8092
+      bindHost: {{ monasca.persister.bind.app.host }}
+      port: {{ monasca.persister.bind.app.port }}
   adminConnectors:
     - type: http
-      port: 8093
+      bindHost: {{ monasca.persister.bind.admin.host }}
+      port: {{ monasca.persister.bind.admin.port }}

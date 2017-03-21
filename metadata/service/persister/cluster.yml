@@ -6,3 +6,8 @@ parameters:
   monasca:
     persister:
       enabled: true
+      bind:
+        app:
+          host: ${_param:single_address}
+        admin:
+          host: ${_param:single_address}

@@ -11,6 +11,9 @@ monasca:
     enabled: true
     verbose: {{ verbose }}
     debug: {{ debug }}
+    bind:
+      host: 0.0.0.0
+      port: 8070
   persister:
     pkg_name: monasca-persister
     svc_name: monasca-persister
@@ -18,6 +21,13 @@ monasca:
     enabled: true
     verbose: {{ verbose }}
     debug: {{ debug }}
+    bind:
+      app:
+        host: 0.0.0.0
+        port: 8092
+      admin:
+        host: 0.0.0.0
+        port: 8093
   notification:
     pkg_name: monasca-notification
     svc_name: monasca-notification
